@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="用于初中地理课堂的离线三维等高线地形实验室，支持水平切割、地形识别、自由旋转、屏幕批注与课堂保存。">
+<title>等高线地形课堂 · 离线交互教学</title>
+<style>
+:root{--ink:#243c34;--muted:#738279;--green:#245d48;--line:#e4e9e3;--paper:#fffefa;--orange:#d77b40;--soft:#f2f6ef;--radius:12px}*{box-sizing:border-box}body{margin:0;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;font-size:13px;background:var(--paper)}button,input,select{font:inherit}button{cursor:pointer;color:inherit;border:1px solid var(--line);background:#fff;border-radius:9px;transition:background .18s,border-color .18s,box-shadow .18s}button:hover{background:#f0f5ee;border-color:#bccdbf}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #8bbfaa;outline-offset:2px}button:disabled{opacity:.45;cursor:default}button svg,.icon{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.65;stroke-linecap:round;stroke-linejoin:round;flex:none}button.active{background:#e5efe6;border-color:#8aae98;color:#225b43}button.primary{background:var(--green);color:#fff;border-color:var(--green)}button.primary:hover{background:#1b4c3a}.sprite{position:absolute;width:0;height:0;overflow:hidden}header{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;border-bottom:1px solid var(--line);background:var(--paper);position:relative;z-index:5}.brand{display:flex;align-items:center;gap:12px}.brandmark{width:39px;height:39px;display:grid;place-items:center;background:#e9f0e5;border-radius:12px;color:#2f694e}.brandmark svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.5}.brand h1{font-size:19px;letter-spacing:1px;margin:0;font-weight:650}.brand p{font-size:11px;margin:3px 0 0;color:var(--muted);letter-spacing:1.4px}.header-right{display:flex;gap:14px;align-items:center}.offline{display:flex;align-items:center;gap:7px;font-size:11px;color:#6d8071}.offline:before{content:"";width:6px;height:6px;border-radius:50%;background:#6a9d73}.helpbtn{border-color:transparent;background:transparent;display:flex;gap:6px;align-items:center;padding:8px}.menu-btn{display:none;padding:8px}.layout{display:flex;height:calc(100dvh - 70px);height:calc(100vh - 70px)}aside{width:284px;flex:none;background:var(--paper);border-right:1px solid var(--line);padding:18px 19px 12px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#d0dacc transparent;z-index:4}section.control{padding:0 0 15px;margin:0 0 14px;border-bottom:1px solid var(--line)}section.control:last-of-type{margin-bottom:0;border:0}.section-title{display:flex;align-items:center;gap:8px;margin:0 0 10px;font-size:12px;font-weight:650;letter-spacing:.4px}.section-title span{font-size:10px;font-weight:500;letter-spacing:1px;color:#8b9a8e}.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.feature{height:36px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px}.feature small{font-size:10px;opacity:.55}.layer-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}.toggle{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;user-select:none;font-size:12px;line-height:22px}.toggle input{appearance:none;-webkit-appearance:none;cursor:pointer;width:29px;height:17px;margin:0;border-radius:20px;background:#dce2db;border:0;flex:none;position:relative;transition:background .15s}.toggle input:before{content:"";position:absolute;width:11px;height:11px;border-radius:50%;background:#fff;left:3px;top:3px;box-shadow:0 1px 2px #0001;transition:transform .15s}.toggle input:checked{background:#4e7b60}.toggle input:checked:before{transform:translateX(12px)}.cut-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}.altitude{font-size:29px;line-height:34px;font-variant-numeric:tabular-nums;color:#315a43;letter-spacing:-1px;font-weight:550}.altitude small{font-size:12px;letter-spacing:0;font-weight:400;margin-left:5px;color:var(--muted)}.playbtn{display:flex;align-items:center;gap:4px;border:0;background:#edf3e9;padding:7px 9px;font-size:11px}input[type=range]{width:100%;height:20px;accent-color:#3e7455;cursor:pointer;margin:5px 0}.range-ticks{display:flex;justify-content:space-between;font-size:10px;color:#8c988e;margin-top:-2px}.inline-row{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-top:9px;font-size:12px}select{border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);padding:5px 8px;cursor:pointer}.steps{display:flex;gap:5px;margin-top:11px}.steps button{padding:7px 2px;flex:1;font-size:11px}.steps button b{font-size:10px;margin-right:3px;font-weight:400;opacity:.55}.projection-row{margin-top:8px;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:10px}.projection-row input{flex:1;min-width:0;height:14px}.projection-row span{min-width:30px;text-align:right}.view-row{display:flex;gap:5px}.view-row button{display:flex;align-items:center;justify-content:center;gap:4px;height:32px;font-size:11px;flex:1}.view-row .square{flex:0 0 32px}.tools{display:flex;gap:5px;margin-top:10px}.tools button{height:32px;display:grid;place-items:center;flex:1}.brush-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}.swatches{display:flex;gap:7px}.swatch{width:17px;height:17px;border-radius:50%;background:var(--swatch)!important;border:2px solid var(--paper);outline:1px solid transparent;padding:0}.swatch.active{outline-color:var(--swatch)}.small-actions{display:flex;gap:4px}.small-actions button{padding:3px 6px;font-size:10px;min-height:25px}.pen-width{display:flex;align-items:center;gap:7px;margin-top:4px;font-size:10px;color:var(--muted)}.pen-width input{height:15px;flex:1}.caption{font-size:10px;line-height:1.7;color:#89958b;margin:5px 0 0}.file-title{width:100%;border:0;border-bottom:1px dashed #d9e0d4;outline:0;padding:5px 0 7px;background:transparent;color:#566b5b;font-size:12px;margin-bottom:9px}.savebtn{width:100%;height:36px;display:flex;align-items:center;justify-content:center;gap:8px}.file-row{display:flex;gap:7px;margin-top:7px}.file-row button{flex:1;padding:7px 0;font-size:11px;display:flex;align-items:center;justify-content:center;gap:5px}.save-status{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:10px;color:#8c978d}.text-btn{border:0;background:none;padding:0;font-size:10px;color:#9b8f80}.workspace{position:relative;flex:1;min-width:0;overflow:hidden;background:radial-gradient(ellipse at 45% 45%,#f9fbf3 0%,#edf3e9 63%,#e4ece1 100%)}.stage-title{position:absolute;left:30px;top:25px;pointer-events:none;z-index:1}.eyebrow{font-size:10px;letter-spacing:2.2px;color:#8b9b89;margin-bottom:7px}.stage-title h2{font-size:23px;font-weight:500;letter-spacing:1px;margin:0 0 7px}.stage-title p{color:#82917e;font-size:11px;margin:0;letter-spacing:.3px}#terrain,#hud,#ink{position:absolute;inset:0;width:100%;height:100%;touch-action:none}#terrain{cursor:grab}#terrain:active{cursor:grabbing}#hud{pointer-events:none}#ink{pointer-events:none}#ink.drawing{pointer-events:auto;cursor:crosshair}.mode-pill{position:absolute;right:24px;top:25px;z-index:1;padding:6px 10px;border:1px solid #d8e2d4;border-radius:20px;font-size:10px;color:#779076;background:#f8fbf2b3;pointer-events:none}.info-card{position:absolute;left:25px;bottom:61px;width:320px;padding:15px 17px 14px;border:1px solid #dfe6d8;background:#fffef7ed;box-shadow:0 6px 25px #34522b05;border-radius:12px;pointer-events:none}.info-top{display:flex;align-items:center;gap:8px;margin-bottom:7px}.info-number{display:grid;place-items:center;width:22px;height:22px;border-radius:7px;background:#ecf2e6;color:#66835e;font-size:11px}.info-card h3{font-size:15px;font-weight:600;margin:0}.info-card p{font-size:12px;line-height:1.8;margin:0;color:#72816c}.info-card .rule{margin-top:7px;color:#a36c3f;font-size:11px;line-height:1.6}.map-card{position:absolute;right:23px;bottom:61px;width:230px;border-radius:12px;background:#fffef9eb;border:1px solid #dce5d5;padding:12px 12px 8px;box-shadow:0 6px 25px #34522b05}.map-title{display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:600;margin-bottom:5px}.map-title small{font-size:9px;color:#96a18d;font-weight:400}.map-card canvas{display:block;width:100%;height:144px;cursor:pointer;border-radius:6px}.map-foot{font-size:9px;color:#a08c75;text-align:center;margin-top:5px}.statusbar{position:absolute;bottom:0;left:0;right:0;height:33px;background:#f8faf2c7;border-top:1px solid #dce4d4;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 20px;color:#91a087;font-size:10px;pointer-events:none}.interaction-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:10px;color:#8e9c83;pointer-events:none}.legend{position:absolute;right:28px;top:108px;width:41px;pointer-events:none;font-size:9px;color:#839078}.legend-title{font-size:10px;margin-left:-5px;margin-bottom:8px;white-space:nowrap}.legend-body{display:flex;gap:7px;height:116px}.legend-ramp{width:8px;border-radius:4px;background:linear-gradient(to bottom,#efe8d1,#d5bf82,#b6bd79,#90af73,#729d72);border:1px solid #b8c1a752}.legend-values{display:flex;flex-direction:column;justify-content:space-between}.modal-backdrop{position:fixed;inset:0;background:#233b2f70;backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;z-index:20;padding:24px}.modal-backdrop[hidden]{display:none}.modal{width:740px;max-height:85vh;overflow:auto;background:var(--paper);border:1px solid #d6e0d1;border-radius:18px;padding:28px 32px;box-shadow:0 25px 100px #1e382535}.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:17px}.modal h2{font-size:21px;font-weight:550;margin:0}.close{border:0;background:none;font-size:23px;padding:2px 8px;color:#82947e}.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}.modal h3{font-size:13px;margin:14px 0 8px}.modal p,.modal li{font-size:12px;line-height:1.9;color:#73816c}.modal ol{padding-left:19px;margin:0}.modal table{border-collapse:collapse;width:100%;font-size:11px;line-height:1.7;color:#73816c}.modal td{padding:8px 0;border-bottom:1px solid var(--line)}.modal td:first-child{color:#3f6449;width:48px;vertical-align:top}.help-note{background:#eef3e7;padding:12px 15px;border-radius:10px;margin:18px 0 0!important;font-size:11px!important}.toast{position:fixed;left:calc(50% + 100px);bottom:30px;transform:translateX(-50%) translateY(10px);opacity:0;pointer-events:none;z-index:30;padding:11px 18px;border-radius:10px;background:#284b3a;color:#fff;font-size:12px;box-shadow:0 5px 25px #24483230;transition:opacity .2s,transform .2s;max-width:80vw}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}.error-panel{position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:35px;background:#edf3e9;z-index:3}.error-panel[hidden]{display:none}.error-panel p{max-width:420px;color:#7a8b71;line-height:1.8}.error-panel h2{font-weight:500}kbd{font-family:inherit;padding:1px 4px;border:1px solid #dbe2d5;border-radius:4px;font-size:10px;background:#fff}
+@media(min-width:1600px){aside{width:306px;padding:22px 24px}.stage-title{left:42px;top:33px}.info-card{left:36px;width:345px;bottom:68px}.map-card{right:32px;bottom:68px;width:255px}.map-card canvas{height:162px}}
+@media(max-height:790px){aside{padding-top:13px}section.control{margin-bottom:11px;padding-bottom:11px}.section-title{margin-bottom:8px}.info-card{width:290px;bottom:56px;padding:12px 14px}.info-card p{font-size:11px}.map-card{width:205px;bottom:56px}.map-card canvas{height:123px}.stage-title{top:20px}.stage-title h2{font-size:21px}}
+@media(max-width:1060px){aside{width:264px;padding-left:15px;padding-right:15px}.map-card{width:198px;right:15px}.map-card canvas{height:124px}.info-card{width:270px;left:16px}.stage-title{left:22px}.legend{right:20px}.interaction-hint{left:auto;right:16px;transform:none}.statusbar{font-size:9px;padding:0 13px}}
+@media(max-width:850px){.map-card{display:none}.info-card{bottom:61px;width:300px}.offline{display:none}.header-right{gap:3px}header{padding:0 16px}.help-grid{grid-template-columns:1fr}.legend{top:110px}.stage-title h2{font-size:20px}}
+@media(max-width:650px){header{height:62px;padding:0 12px}.layout{height:calc(100dvh - 62px)}.brand h1{font-size:16px}.brand p{font-size:9px}.brandmark{width:32px;height:32px}.brand{gap:8px}.menu-btn{display:flex}.helpbtn span{display:none}aside{display:none;position:absolute;top:62px;bottom:0;left:0;box-shadow:12px 0 40px #2b49332a;width:270px}aside.open{display:block}.stage-title{top:21px;left:19px}.stage-title h2{font-size:19px}.stage-title p{font-size:10px}.mode-pill{right:13px;top:85px}.legend{right:16px;top:133px}.info-card{left:15px;bottom:64px;max-width:calc(100% - 65px);width:300px}.statusbar span:last-child{display:none}.interaction-hint{font-size:9px;right:15px}.toast{left:50%}.modal{padding:20px}.modal-backdrop{padding:13px}}
+@media print{aside,header,.interaction-hint,.statusbar{display:none}.layout{height:95vh}.workspace{width:100vw}.modal-backdrop{display:none}}
+/* The teaching console stays on the right, including the narrow-screen drawer. */
+.layout{flex-direction:row-reverse}aside{width:300px;border-right:0;border-left:1px solid var(--line)}.toast{left:calc(50% - 130px)}
+.label-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px}.label-controls button{font-size:10px;padding:5px 0}.label-controls button:before{content:"○";margin-right:4px;opacity:.6}.label-controls button.active:before{content:"✓"}.sub-label{font-size:10px;color:#83917e;margin-top:11px}.contours-only{width:100%;height:33px;margin-top:10px;display:flex;gap:6px;align-items:center;justify-content:center;font-size:12px}.cut-actions{display:flex;gap:5px;margin-top:9px}.cut-actions button{flex:1;font-size:10px;padding:5px}.sweep-progress{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:10px;color:#819079}.sweep-progress input{flex:1;min-width:0}.sweep-progress span{width:30px;text-align:right}.plane-opacity{display:flex;align-items:center;gap:6px;margin-top:7px;font-size:10px;color:#819079}.plane-opacity input{flex:1;min-width:0;height:14px}.plane-opacity output{width:28px;text-align:right}.legend-ramp{background:repeating-linear-gradient(to top,#99a48f 0px,#99a48f 1px,transparent 1px,transparent 28px);border:0;border-right:1px solid #a6b298;border-radius:0}.workspace{background:radial-gradient(ellipse at 45% 40%,#f6f9f1 0%,#e8eee2 65%,#dce5d6 100%)}
+@media(min-width:1600px){aside{width:316px}}
+@media(max-width:1060px){aside{width:278px}}
+@media(max-width:650px){aside{left:auto;right:0;width:278px;box-shadow:-12px 0 40px #2b49332a}.toast{left:50%}}
+.cut-mode{display:flex;gap:6px;margin-bottom:11px}.cut-mode button{flex:1;padding:7px 3px;font-size:12px}.map-card{right:88px}.legend{display:none}
+@media(max-width:1060px){.map-card{right:82px}}
+
+.map-panel summary{display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:11px;font-weight:600;list-style:none}.map-panel summary::-webkit-details-marker{display:none}.map-panel summary span{font-size:9px;font-weight:400;color:#8b9984}.map-panel canvas{display:block;width:100%;height:112px;margin-top:7px;border:1px solid #e1e7d8;border-radius:7px;cursor:pointer;background:#fbfaf0}.map-panel details:not([open]) canvas{display:none}.map-panel .caption{font-size:9px}
+</style>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true"><defs>
+<symbol id="i-mountain" viewBox="0 0 24 24"><path d="m2 19 7-13 4 7 3-5 6 11Z"/><path d="m7 10 2 2 2-2"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><path d="m3 8 9-5 9 5-9 5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+<symbol id="i-pointer" viewBox="0 0 24 24"><path d="m5 3 4 17 3-7 7-3Z"/></symbol>
+<symbol id="i-pen" viewBox="0 0 24 24"><path d="m4 16 12-12 4 4L8 20l-5 1Z"/><path d="m14 6 4 4"/></symbol>
+<symbol id="i-marker" viewBox="0 0 24 24"><path d="m6 14 9-10 5 5-10 9ZM6 14l4 4-3 3H3v-4Z"/></symbol>
+<symbol id="i-eraser" viewBox="0 0 24 24"><path d="m3 13 9-10 9 8-9 10H9Z"/><path d="m7 9 9 8M12 21h9"/></symbol>
+<symbol id="i-save" viewBox="0 0 24 24"><path d="M4 3h13l4 4v14H3V3Z"/><path d="M7 3v6h9V3M7 21v-8h10v8"/></symbol>
+<symbol id="i-open" viewBox="0 0 24 24"><path d="M3 19V5h7l2 3h9v3M3 19l4-8h15l-4 8Z"/></symbol>
+<symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 6-6 4 5 3-3 5 5"/></symbol>
+<symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 0 5M4 4v6h6"/></symbol>
+<symbol id="i-top" viewBox="0 0 24 24"><path d="m4 8 8-5 8 5v9l-8 4-8-4ZM4 8l8 5 8-5M12 13v8"/></symbol>
+<symbol id="i-full" viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M21 16v5h-5M8 21H3v-5"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9a3 3 0 1 1 4 3c-1 1-1 1-1 3M12 18h.01"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+</defs></svg>
+<header>
+ <div class="brand"><button class="menu-btn" id="btnMenu" title="展开教学工具" aria-label="展开教学工具"><svg><use href="#i-menu"/></svg></button><div class="brandmark"><svg viewBox="0 0 36 36"><path d="M3 25C2 15 9 7 16 6c9-2 18 7 17 16s-10 12-17 10S4 31 3 25Z"/><path d="M8 23c-1-7 5-13 10-12s11 6 10 12-6 7-11 6-8-2-9-6Z"/><path d="M13 21c-1-4 2-7 5-6s6 4 5 7-4 4-7 3-3-2-3-4Z"/></svg></div><div><h1>等高线地形课堂</h1><p>看见地形 · 读懂等高线</p></div></div>
+ <div class="header-right"><span class="offline">离线教学版 v5.0</span><button class="helpbtn" id="btnHelp" title="使用说明"><svg><use href="#i-help"/></svg><span>使用说明</span></button></div>
+</header>
+<div class="layout">
+<aside id="sidebar" aria-label="教学控制面板">
+ <section class="control"><h2 class="section-title"><span>01</span>认识地形</h2><div class="feature-grid" id="featureButtons">
+  <button class="feature active" data-feature="overview">总览</button><button class="feature" data-feature="peak"><small>1</small>山峰</button><button class="feature" data-feature="ridge"><small>2</small>山脊</button><button class="feature" data-feature="valley"><small>3</small>山谷</button><button class="feature" data-feature="saddle"><small>4</small>鞍部</button><button class="feature" data-feature="cliff"><small>5</small>陡崖</button>
+ </div></section>
+ <section class="control map-panel"><details id="mapDetails" open><summary>等高线平面图<span>收起 / 展开</span></summary><canvas id="map" aria-label="当前等高线的平面小图，点击切换俯视"></canvas><p class="caption">点击小图切换俯视 · 橙色为当前海拔交线</p></details></section>
+ <section class="control"><h2 class="section-title"><span>02</span>图层显示</h2><div class="layer-grid">
+  <label class="toggle">山体<input id="showTerrain" type="checkbox" checked></label><label class="toggle">切割面<input id="showPlane" type="checkbox"></label><label class="toggle">等高线<input id="showContours" type="checkbox" checked></label><label class="toggle">部位标注<input id="showLabels" type="checkbox" checked></label>
+ </div><button class="contours-only" id="btnContoursOnly"><svg><use href="#i-layers"/></svg><span>仅看等高线</span></button><div class="sub-label">单独控制部位标注</div><div class="label-controls" id="labelControls"><button class="active" data-label="peak">山峰</button><button class="active" data-label="ridge">山脊</button><button class="active" data-label="valley">山谷</button><button class="active" data-label="saddle">鞍部</button><button class="active" data-label="cliff">陡崖</button></div></section>
+ <section class="control"><h2 class="section-title"><span>03</span>水平切割设置</h2><div class="cut-mode" role="group" aria-label="切割面数量"><button data-cut-mode="single" title="仅使用重点海拔的一个水平切割面">单面切割</button><button class="active" data-cut-mode="multi" title="各等高线海拔分别显示水平切割面">多面切割</button></div><div class="cut-head"><div class="altitude"><output id="elevationValue">400</output><small>m · 重点海拔</small></div><button class="playbtn" id="btnPlay"><svg><use href="#i-play"/></svg><span>从右向左切割</span></button></div>
+  <input id="elevation" type="range" min="100" max="800" step="100" value="400" aria-label="重点显示的切割面海拔"><div class="range-ticks"><span id="elevationMin">100 m</span><span id="cutModeHint">每条等高线对应一个切面</span><span>800 m</span></div>
+  <div class="inline-row"><label for="interval">等高距</label><select id="interval"><option value="50">50 m</option><option value="100" selected>100 m</option><option value="200">200 m</option></select><label class="toggle">切去上部<input type="checkbox" id="clipTop"></label></div>
+  <div class="sweep-progress"><label for="cutProgress">切割进度</label><input id="cutProgress" type="range" min="0" max="100" value="100" aria-label="从右向左的切割进度"><span id="cutProgressValue">100%</span></div><div class="cut-actions"><button id="btnCutReset">回到起点</button><button id="btnCutComplete">全部切开</button><select id="cutSpeed" aria-label="切割动画速度"><option value="4000">快 · 4秒</option><option value="7000" selected>标准 · 7秒</option><option value="12000">慢 · 12秒</option></select></div>
+  <div class="plane-opacity"><label for="planeOpacity">切面透明度</label><input id="planeOpacity" type="range" min="75" max="97" value="91" aria-label="切割面透明度"><output id="planeOpacityValue">91%</output></div><p class="caption" id="planeCount">8 层切面 · 与等高线逐层对应</p>
+  <div class="steps"><button id="stepCut" title="多层水平面从画面右侧向左切入山体"><b>①</b>切割</button><button id="stepTrace" title="显示各切割面与山体的交线"><b>②</b>描线</button><button id="stepMap" title="将所有等高线垂直投影至水平面，并从正上方观察"><b>③</b>成图</button></div>
+  <div class="projection-row"><label for="projection">向下投影</label><input type="range" id="projection" min="0" max="100" value="0" aria-label="等高线向水平面投影进度"><span id="projectionValue">0%</span></div>
+ </section>
+ <section class="control"><h2 class="section-title"><span>04</span>视角与课堂画笔</h2><div class="view-row"><button id="btnOblique"><svg><use href="#i-mountain"/></svg>斜视</button><button id="btnTop"><svg><use href="#i-top"/></svg>俯视</button><button id="btnReset" title="重置视角"><svg><use href="#i-reset"/></svg>复位</button><button class="square" id="btnFull" title="进入或退出全屏" aria-label="进入或退出全屏"><svg><use href="#i-full"/></svg></button></div>
+  <div class="tools" id="tools"><button class="active" data-tool="navigate" title="旋转 / 平移（V）" aria-label="旋转与平移"><svg><use href="#i-pointer"/></svg></button><button data-tool="pen" title="画笔（P）" aria-label="画笔"><svg><use href="#i-pen"/></svg></button><button data-tool="marker" title="荧光笔" aria-label="荧光笔"><svg><use href="#i-marker"/></svg></button><button data-tool="eraser" title="橡皮擦（E）" aria-label="橡皮擦"><svg><use href="#i-eraser"/></svg></button></div>
+  <div class="brush-row"><div class="swatches" id="swatches"><button class="swatch active" style="--swatch:#d65c3d" data-color="#d65c3d" title="朱红色" aria-label="朱红色"></button><button class="swatch" style="--swatch:#2b6caa" data-color="#2b6caa" title="蓝色" aria-label="蓝色"></button><button class="swatch" style="--swatch:#34674b" data-color="#34674b" title="绿色" aria-label="绿色"></button><button class="swatch" style="--swatch:#303933" data-color="#303933" title="深灰色" aria-label="深灰色"></button></div><div class="small-actions"><button id="btnUndo" title="撤销上一次批注操作（Ctrl+Z）">撤销</button><button id="btnClear">清空</button></div></div>
+  <div class="pen-width"><label for="penWidth">粗细</label><input id="penWidth" type="range" min="1" max="8" value="3" aria-label="画笔粗细"><span id="penWidthValue">3</span></div><p class="caption" id="brushHint">拖动旋转 · 滚轮缩放 · 右键拖动平移</p>
+ </section>
+ <section class="control"><h2 class="section-title"><span>05</span>课堂文件</h2><input class="file-title" id="lessonTitle" value="初中地理 · 等高线" maxlength="60" aria-label="课堂名称"><button class="primary savebtn" id="btnSave"><svg><use href="#i-save"/></svg>保存课堂网页</button><div class="file-row"><button id="btnLoad"><svg><use href="#i-open"/></svg>载入课堂</button><button id="btnImage"><svg><use href="#i-image"/></svg>保存图片</button></div><div class="save-status"><span id="saveStatus">当前进度将自动暂存</span><button class="text-btn" id="btnFresh">新课堂</button></div><input type="file" id="lessonFile" accept=".html,.htm,.json" hidden></section>
+</aside>
+<main class="workspace" id="workspace" aria-label="可旋转的三维等高线地形模型">
+ <div class="stage-title"><div class="eyebrow">CONTOUR · TERRAIN LAB</div><h2 id="stageHeading">一块地形，五种地形部位</h2><p id="stageSubtitle">用水平面切开山体，看看等高线如何诞生。</p></div>
+ <canvas id="terrain" aria-label="三维地形，鼠标拖动旋转，滚轮缩放，右键拖动平移"></canvas><canvas id="hud" aria-hidden="true"></canvas><canvas id="ink" aria-label="课堂屏幕批注画布"></canvas>
+ <div class="mode-pill" id="modePill">自由观察 · 三维视图</div>
+ <div class="legend"><div class="legend-title">海拔 / m</div><div class="legend-body"><div class="legend-ramp"></div><div class="legend-values"><span>850</span><span>600</span><span>400</span><span>200</span><span>0</span></div></div></div>
+ <div class="interaction-hint" id="interactionHint">左键旋转　·　滚轮缩放　·　右键平移</div><div class="statusbar"><span id="statusLeft">等高距 100 m　|　当前切面 400 m</span><span>教学示意模型 · 垂直比例经夸张</span></div>
+ <div class="error-panel" id="errorPanel" hidden><h2>三维画面暂时无法启动</h2><p>请用电脑上的 Chrome 或 Edge 浏览器直接打开本网页，并在浏览器设置中启用图形加速。此网页无需联网。</p></div>
+</main>
+</div>
+<div class="modal-backdrop" id="helpModal" hidden role="dialog" aria-modal="true" aria-labelledby="helpHeading"><div class="modal"><div class="modal-head"><h2 id="helpHeading">把地形讲清楚</h2><button class="close" id="btnCloseHelp" aria-label="关闭说明">×</button></div><div class="help-grid"><div><h3>一堂课的演示顺序</h3><ol><li>在「认识地形」中点选部位，结合三维模型与右侧面板中的平面图观察。</li><li>先选择「单面切割」或「多面切割」。单面使用重点海拔的一个切面，多面为各等高线海拔配置切面。点击「① 切割」从画面右侧向左推进。可暂停、重播或拖动切割进度。</li><li>点击「② 描线」显示各层交线，海拔滑块选出重点海拔。可勾选「切去上部」观察该层截面；改变等高距，切面数量同步变化。</li><li>点击「③ 成图」，观察交线垂直投影后形成的平面等高线图。移动「向下投影」滑块可回看投影过程。</li><li>选择画笔圈画；点击「保存课堂网页」，下载包含视角、图层、课堂名称和批注的新 HTML 文件。</li></ol><h3>操作与文件</h3><p>左键旋转；滚轮缩放；右键或 Shift + 左键平移。触屏可单指旋转、双指缩放。<kbd>V</kbd> 观察，<kbd>P</kbd> 画笔，<kbd>E</kbd> 橡皮，<kbd>T</kbd> 俯视，<kbd>0</kbd> 复位，空格播放，Ctrl / ⌘ + Z 撤销批注。</p><p>批注固定在屏幕上；旋转后不会跟随地形。画笔模式暂停旋转，可切回箭头继续观察。「保存图片」导出当前画面 PNG。「载入课堂」读取本网页保存的 HTML 或课堂 JSON，不执行导入文件中的脚本。</p></div><div><h3>五种地形部位的判读</h3><table><tbody><tr><td>山峰</td><td>等高线闭合，数值一般由外向内升高。仅看闭合形状还需结合高程，区别于洼地。</td></tr><tr><td>山脊</td><td>山体向外伸出的高起部分。等高线向海拔较低处凸出。</td></tr><tr><td>山谷</td><td>两侧较高、中间较低的狭长低地。等高线向海拔较高处凸出，可能成为汇水通道。</td></tr><tr><td>鞍部</td><td>相邻两个山峰之间较低的部位；沿两峰连线较低，横向比两侧的谷地高。</td></tr><tr><td>陡崖</td><td>近于直立的坡面。在本模型的理想垂直崖面，多条等高线在平面投影中重合。一般陡坡则表现为密集。</td></tr></tbody></table><h3>投影与图层</h3><p>山体、切割面和等高线可分别开关。单面模式只显示当前海拔的切面与随切割逐渐形成的橙色交线，不显示其他海拔的等高线；海拔滑块可改变单面高度。右侧海拔标尺与模型使用相同投影，放大时变长、缩小时变短，也会随视角倾斜变化；近俯视时以等高线数值判读海拔。「仅看等高线」隐藏山体与切面，保留立体等高线，再点一次可返回山体。五种部位标注各有按钮，总开关可同时隐藏主图和小地图中的名称、指示线与编号。切去上部仅在切割面打开时生效。</p></div></div><p class="help-note">山体具有细尺度自然起伏、坡面浅沟、弯曲崖壁和崖脚碎屑坡，采用程序生成的植被、风化岩石与光影材质，色彩不等同于分层设色，海拔以等高线数值为准。切割方向按动画启动时的视角确定，默认从画面右侧向左侧推进。本地形是专为教学构造的示意模型，无真实地理坐标，垂直比例经过夸张；图示海拔单位为米。网页内已包含全部代码，无外部资源、账号或网络请求。自动暂存依赖浏览器本机存储，跨电脑或长期留存请使用「保存课堂网页」。</p></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script id="classroom-state" type="application/json">{}</script>
+<script id="terrain-core">
+/* Numerical terrain model. This file is embedded in the delivered HTML. */
+(function (root) {
+  'use strict';
+  const CLIFF_X = 2.35, SCALE = 0.0048;
+  const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+  const smooth = t => { t=clamp(t,0,1); return t*t*(3-2*t); };
+  function hash(x,y){let n=(Math.imul(x,374761393)+Math.imul(y,668265263))|0;n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967295;}
+  function noise(x,y){const a=Math.floor(x),b=Math.floor(y),u=smooth(x-a),v=smooth(y-b);return (hash(a,b)*(1-u)+hash(a+1,b)*u)*(1-v)+(hash(a,b+1)*(1-u)+hash(a+1,b+1)*u)*v;}
+  function cliffX(y){const t=y-1.2;return CLIFF_X+.26*(Math.cos(t*1.35)-1)+.045*Math.sin(t*5.4)+.012*Math.sin(t*19.0);}
+  function cliffDerivative(y){const t=y-1.2;return -.351*Math.sin(t*1.35)+.243*Math.cos(t*5.4)+.228*Math.cos(t*19.0);}
+  function cliffDrop(y){const t=y-1.2;return 220*Math.exp(-Math.pow((y-1.25)/1.35,4))*(1+.055*Math.sin(t*5.2)+.025*Math.sin(t*11.8))*smooth((y+.85)/.65)*smooth((3.4-y)/.6);}
+  function height(x,y,side) {
+    const g=(a,b)=>Math.exp(-a*a-b*b);
+    const base=60+100*g(x/3.75,(y+0.1)/3.2);
+    const west=620*g((x+1.65)/1.15,(y+1.35)/1.3);
+    const east=565*g((x-1.6)/1.12,(y+1.5)/1.25);
+    const ridgeW=220*g((x+1.9+0.12*(y+0.2))/0.75,(y-0.7)/2);
+    const ridgeE=220*g((x-1.55)/0.9,(y-0.45)/2.1);
+    const plain=base+west+east+ridgeW+ridgeE,edge=cliffX(y),d=x-edge,drop=cliffDrop(y);
+    const inside=d< -1e-9||(Math.abs(d)<=1e-9&&side==='west');
+    const uplift=inside?drop*smooth((x-(edge-1.25))/1.05):0;
+    // A sloping apron of weathered debris joins the foot of the scarp to the valley floor.
+    const talus=inside?0:56*(drop/220)*Math.exp(-Math.pow(Math.max(0,d)/.57,1.25));
+    const protect=(1-Math.exp(-((x+1.66)**2+(y+1.22)**2)/.20))*(1-Math.exp(-((x+.005)**2+(y+1.29)**2)/.20));
+    const detail=((noise(x*.9+8,y*.9-3)-.5)*18+(noise(x*2.7-2,y*2.7+6)-.5)*9+(noise(x*7.6,y*7.6)-.5)*3)*smooth((plain-70)/300)*protect;
+    const r=Math.hypot(x+1.65,(y+1.25)*.9),angle=Math.atan2(y+1.25,x+1.65);
+    const rills=-9*smooth((r-.35)/.5)*(1-smooth((r-2.3)/.65))*Math.pow(.5+.5*Math.cos(angle*11+noise(x*2,y*2)*1.3),6)*protect;
+    return plain+uplift+talus+detail+rills;
+  }
+  function mesh(nx=150,ny=160) {
+    const triangles=[];
+    const tri=(a,b,c,wall=false)=>{if(wall&&[[a,b],[b,c],[c,a]].some(([p,q])=>Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2])<1e-8))return;triangles.push({p:[a,b,c],wall});};
+    for(const side of ['west','east']){
+      const count=side==='west'?Math.round(nx*.73):nx-Math.round(nx*.73),rows=[];
+      for(let j=0;j<=ny;j++){const y=-4+8*j/ny,edge=cliffX(y),row=[];for(let i=0;i<=count;i++){const x=side==='west'?-5+(edge+5)*i/count:edge+(5-edge)*i/count;row.push([x,y,height(x,y,side)]);}rows.push(row);}
+      for(let i=0;i<count;i++){
+      for(let j=0;j<ny;j++) {
+        const p=rows[j][i],q=rows[j][i+1],r=rows[j+1][i+1],s=rows[j+1][i];
+        tri(p,q,r); tri(p,r,s);
+      }
+      }
+    }
+    for(let j=0;j<ny;j++) {
+      const y=-4+8*j/ny, yy=-4+8*(j+1)/ny;
+      const x=cliffX(y),xx=cliffX(yy),a=[x,y,height(x,y,'west')],b=[x,y,height(x,y,'east')],c=[xx,yy,height(xx,yy,'east')],d=[xx,yy,height(xx,yy,'west')];
+      tri(a,b,c,true);tri(a,c,d,true);
+    }
+    return triangles;
+  }
+  function contour(triangles,level) {
+    const segments=[];
+    for(const {p} of triangles) {
+      const points=[];
+      for(let i=0;i<3;i++) {
+        const a=p[i],b=p[(i+1)%3];
+        if((a[2]<=level&&b[2]>level)||(b[2]<=level&&a[2]>level)) {
+          const t=(level-a[2])/(b[2]-a[2]);
+          points.push([a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1]),level]);
+        }
+      }
+      if(points.length===2) segments.push(points);
+    }
+    return segments;
+  }
+  function cap(triangles,level) {
+    const result=[];
+    for(const t of triangles) {
+      if(t.wall)continue;
+      const poly=[];
+      for(let i=0;i<3;i++) {
+        const a=t.p[i],b=t.p[(i+1)%3];
+        if(a[2]>=level)poly.push([a[0],a[1],level]);
+        if((a[2]>=level)!==(b[2]>=level)) {
+          const u=(level-a[2])/(b[2]-a[2]);
+          poly.push([a[0]+u*(b[0]-a[0]),a[1]+u*(b[1]-a[1]),level]);
+        }
+      }
+      for(let i=1;i<poly.length-1;i++)result.push([poly[0],poly[i],poly[i+1]]);
+    }
+    return result;
+  }
+  const stops=[[0,[0.45,0.64,0.45]],[200,[0.57,0.70,0.46]],[400,[0.73,0.75,0.47]],[600,[0.82,0.74,0.51]],[800,[0.88,0.82,0.66]],[1000,[0.95,0.92,0.82]]];
+  function color(h) {
+    for(let i=1;i<stops.length;i++)if(h<=stops[i][0]){ const t=clamp((h-stops[i-1][0])/(stops[i][0]-stops[i-1][0]),0,1);return stops[i][1].map((v,j)=>stops[i-1][1][j]*(1-t)+v*t); }
+    return stops[stops.length-1][1];
+  }
+  const sub=(a,b)=>a.map((v,i)=>v-b[i]),dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+  const norm=a=>{const n=Math.hypot(...a)||1;return a.map(v=>v/n);};
+  function multiply(a,b) { const r=new Float32Array(16);for(let c=0;c<4;c++)for(let row=0;row<4;row++)for(let k=0;k<4;k++)r[c*4+row]+=a[k*4+row]*b[c*4+k];return r; }
+  function cameraMatrix(c,aspect) {
+    const ce=Math.cos(c.el), eye=[c.tx+18*Math.sin(c.az)*ce,c.ty+18*Math.cos(c.az)*ce,c.tz+18*Math.sin(c.el)];
+    // Map coordinates use x east and y south. Mirror the view basis so north
+    // stays at the top and east at the right in the exact overhead view.
+    const z=norm(sub(eye,[c.tx,c.ty,c.tz])),x=norm(cross(z,[0,0,1])),y=cross(x,z);
+    const v=new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1]);
+    const h=c.span,w=h*aspect,n=0.1,f=70;
+    const p=new Float32Array([1/w,0,0,0,0,1/h,0,0,0,0,-2/(f-n),0,0,0,-(f+n)/(f-n),1]);
+    return multiply(p,v);
+  }
+  function project(p,m,w,h) {const a=[p[0],p[1],p[2]*SCALE,1],r=[0,0,0,0];for(let row=0;row<4;row++)for(let k=0;k<4;k++)r[row]+=m[k*4+row]*a[k];return [(r[0]/r[3]+1)*w/2,(1-r[1]/r[3])*h/2,r[2]/r[3]];}
+  function elevationRuler(camera,width,height){
+    const matrix=cameraMatrix(camera,width/height),reference=[camera.tx,camera.ty];
+    const base=project([...reference,0],matrix,width,height)[1],top=project([...reference,850],matrix,width,height)[1];
+    return {base,top,length:base-top,min:0,max:850};
+  }
+  function sweepFrame(az,progress) {
+    const normal=[Math.cos(az),-Math.sin(az)];
+    const extent=5.15*Math.abs(normal[0])+4.15*Math.abs(normal[1]);
+    return {normal,limit:extent*(1-2*clamp(progress,0,1)),extent};
+  }
+  function sweepFront(az,progress,level) {
+    if(progress<=0||progress>=1)return[];
+    const {normal:n,limit}=sweepFrame(az,progress),corners=[[-5.15,-4.15],[5.15,-4.15],[5.15,4.15],[-5.15,4.15]],points=[];
+    for(let i=0;i<4;i++){
+      const a=corners[i],b=corners[(i+1)%4],da=a[0]*n[0]+a[1]*n[1]-limit,db=b[0]*n[0]+b[1]*n[1]-limit;
+      if((da<=0&&db>0)||(db<=0&&da>0)){const t=da/(da-db);points.push([a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1]),level]);}
+    }
+    return points.length===2?[points]:[];
+  }
+  function sweepSegments(segments,az,progress){
+    if(progress<=0)return[];if(progress>=1)return segments;
+    const{normal:n,limit}=sweepFrame(az,progress),out=[];
+    for(const[a,b]of segments){const da=a[0]*n[0]+a[1]*n[1]-limit,db=b[0]*n[0]+b[1]*n[1]-limit;if(da<0&&db<0)continue;if(da>=0&&db>=0){out.push([a,b]);continue;}const t=da/(da-db),p=a.map((v,i)=>v+t*(b[i]-v));out.push(da>=0?[a,p]:[p,b]);}
+    return out;
+  }
+  root.TerrainCore={height,mesh,contour,cap,color,clamp,norm,cross,sub,cameraMatrix,project,elevationRuler,sweepFrame,sweepFront,sweepSegments,cliffX,cliffDerivative,cliffDrop,noise,CLIFF_X,SCALE};
+})(globalThis);
+
+</script>
+<script id="classroom-app">
+(function(){
+ 'use strict';
+ const C=TerrainCore, $=id=>document.getElementById(id), PI=Math.PI;
+ const FEATURES={
+  overview:{number:'◎',name:'从立体地形到平面地图',text:'点击右侧地形名称认识五种部位；开启多层切割面，从右向左切入山体，观察同一海拔处的交线。',rule:'等高线：连接地图上各海拔相同的点所成的曲线。'},
+  peak:{number:'1',name:'山峰',p:[-1.66,-1.22],offset:[-44,-45],text:'山地的最高部位。本模型主峰海拔约 832 m；由外向内，闭合等高线的数值逐渐增大。',rule:'判读要点：闭合曲线，内高外低。'},
+  ridge:{number:'2',name:'山脊',p:[-2.05,.9],offset:[-70,-5],text:'从山峰向外延伸的高起部分，两侧地势较低。橙色线标出这段山脊的大致走向。',rule:'判读要点：等高线向低海拔方向凸出。'},
+  valley:{number:'3',name:'山谷',p:[-.32,1.35],offset:[-18,28],text:'两条山脊之间的狭长低地，两侧较高、中间较低。沿本图谷地向南，地势总体降低。',rule:'判读要点：等高线向高海拔方向凸出。'},
+  saddle:{number:'4',name:'鞍部',p:[-.005,-1.29],offset:[8,-31],text:'相邻两个山峰之间的低处，像马鞍。本图鞍部约 303 m；向两峰走会上升，向南北谷地走会下降。',rule:'判读要点：两峰之间，沿峰线低、横向较高。'},
+  cliff:{number:'5',name:'陡崖',p:[C.cliffX(1.2),1.2],offset:[40,-1],text:'弧形崖壁沿山坡自然展布，崖脚由风化碎屑坡过渡到谷地。示范点崖顶约 '+Math.round(C.height(C.cliffX(1.2),1.2,'west'))+' m、崖底约 '+Math.round(C.height(C.cliffX(1.2),1.2,'east'))+' m。',rule:'判读要点：垂直崖段等高线重合，崖脚缓坡处逐渐变疏。'}
+ };
+ const defaultCamera=()=>({az:.63,el:.68,span:5.65,tx:0,ty:0,tz:1.1});
+ const minLevel=i=>Math.max(100,i);
+ const defaults=()=>({kind:'contour-classroom',version:2,id:'lesson-'+Date.now(),title:'初中地理 · 等高线',elevation:400,interval:100,projection:0,layers:{terrain:true,plane:false,contours:true,labels:true},labelParts:{peak:true,ridge:true,valley:true,saddle:true,cliff:true},cutMode:'multi',cutProgress:1,cutAz:.63,cutDuration:7000,planeOpacity:.09,clip:false,feature:'overview',camera:defaultCamera(),color:'#d65c3d',width:3,strokes:[],savedAt:0});
+ const number=(v,d,a,b)=>Number.isFinite(Number(v))?C.clamp(Number(v),a,b):d;
+ function validate(raw){
+  if(!raw||raw.kind!=='contour-classroom'||![1,2].includes(raw.version))throw Error('这不是兼容的课堂文件');
+  const s=defaults();s.id=typeof raw.id==='string'?raw.id.slice(0,80):s.id;s.title=typeof raw.title==='string'?raw.title.slice(0,60):s.title;
+  s.interval=[50,100,200].includes(raw.interval)?raw.interval:100;s.elevation=C.clamp(Math.round(number(raw.elevation,400,minLevel(s.interval),800)/s.interval)*s.interval,minLevel(s.interval),800);s.projection=number(raw.projection,0,0,1);
+  for(const k of Object.keys(s.layers))if(typeof raw.layers?.[k]==='boolean')s.layers[k]=raw.layers[k];
+  for(const k of Object.keys(s.labelParts))if(typeof raw.labelParts?.[k]==='boolean')s.labelParts[k]=raw.labelParts[k];
+  s.cutProgress=number(raw.cutProgress,1,0,1);s.cutAz=number(raw.cutAz,.63,-1000,1000);s.cutDuration=[4000,7000,12000].includes(raw.cutDuration)?raw.cutDuration:7000;s.planeOpacity=number(raw.planeOpacity,.09,.03,.25);
+  s.cutMode=raw.cutMode==='single'?'single':'multi';
+  s.clip=!!raw.clip;s.feature=FEATURES[raw.feature]?raw.feature:'overview';
+  const bounds={az:[-1000,1000],el:[.08,PI/2-.0001],span:[2,14],tx:[-8,8],ty:[-8,8],tz:[-2,5]};
+  for(const k of Object.keys(s.camera))s.camera[k]=number(raw.camera?.[k],s.camera[k],...bounds[k]);
+  if(/^#[\da-f]{6}$/i.test(raw.color))s.color=raw.color;s.width=number(raw.width,3,1,8);s.savedAt=number(raw.savedAt,0,0,1e15);
+  let count=0;if(Array.isArray(raw.strokes))for(const a of raw.strokes.slice(0,1000)){
+   if(!a||!Array.isArray(a.points)||!/^#[\da-f]{6}$/i.test(a.color)||!['pen','marker'].includes(a.tool))continue;
+   const points=[];for(const p of a.points){if(count>=180000)break;if(Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)){points.push(p.map(v=>C.clamp(v,0,1)));count++;}}
+   if(points.length)s.strokes.push({points,color:a.color,width:number(a.width,.005,.0005,.08),tool:a.tool});
+  }
+  return s;
+ }
+ const storageKey='contour-classroom-v2:'+location.pathname;
+ let state=defaults(),restored=false,embedded=false;
+ try{const r=JSON.parse($('classroom-state').textContent);if(r.kind){state=validate(r);embedded=true;}}catch(e){console.warn('课堂内嵌数据无法读取');}
+ try{const raw=JSON.parse(localStorage.getItem(storageKey)||localStorage.getItem('contour-classroom-v1:'+location.pathname)||'null');if(raw&&(!embedded||(raw.id===state.id&&raw.savedAt>state.savedAt))){state=validate(raw);restored=true;}}catch(e){}
+ let tool='navigate',dirty=true,saveTimer=0,toastTimer=0,playing=false,playTime=0,undo=[],W=1,H=1,DPR=1,VP=null,labels=[],cameraTween=null,projectionTween=null;
+ const workspace=$('workspace'),canvas=$('terrain'),hud=$('hud'),ink=$('ink'),map=$('map'),hc=hud.getContext('2d'),ic=ink.getContext('2d'),mc=map.getContext('2d');
+ let gl=null;try{gl=canvas.getContext('webgl',{antialias:true,alpha:true,preserveDrawingBuffer:true,premultipliedAlpha:true});}catch(e){}
+ function toast(message){$('toast').textContent=message;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),3200);}
+ function changed(save=true){dirty=true;if(save){clearTimeout(saveTimer);$('saveStatus').textContent='正在暂存…';saveTimer=setTimeout(()=>{try{state.savedAt=Date.now();localStorage.setItem(storageKey,JSON.stringify(state));$('saveStatus').textContent='本机已自动暂存';}catch(e){$('saveStatus').textContent='请保存课堂网页以保留进度';}},350);}}
+ function syncUI(){
+  $('elevation').min=minLevel(state.interval);$('elevation').step=state.interval;$('elevation').max=800;$('elevationMin').textContent=minLevel(state.interval)+' m';$('elevation').value=state.elevation;$('elevationValue').textContent=state.elevation;$('interval').value=state.interval;$('projection').value=Math.round(state.projection*100);$('projectionValue').textContent=Math.round(state.projection*100)+'%';
+  for(const [id,k] of [['showTerrain','terrain'],['showPlane','plane'],['showContours','contours'],['showLabels','labels']])$(id).checked=state.layers[k];
+  $('clipTop').checked=state.clip;$('clipTop').disabled=!state.layers.plane;$('lessonTitle').value=state.title;$('penWidth').value=state.width;$('penWidthValue').textContent=state.width;
+  $('btnPlay').innerHTML='<svg><use href="#i-'+(playing?'pause':'play')+'"/></svg><span>'+(playing?'暂停切割':state.cutProgress>0&&state.cutProgress<1?'继续切割':'从右向左切割')+'</span>';
+  $('cutProgress').value=Math.round(state.cutProgress*100);$('cutProgressValue').textContent=Math.round(state.cutProgress*100)+'%';$('cutSpeed').value=state.cutDuration;$('planeOpacity').value=100-Math.round(state.planeOpacity*100);$('planeOpacityValue').textContent=(100-Math.round(state.planeOpacity*100))+'%';
+  const count=planeLevels().length;$('planeCount').textContent=state.cutMode==='single'?'单个切面 · '+state.elevation+' m · 仅显示本次切出的交线':count+' 层切面 · 与等高线逐层对应';
+  $('cutModeHint').textContent=state.cutMode==='single'?'拖动海拔，改变单个切面':'每条等高线对应一个切面';
+  for(const b of document.querySelectorAll('[data-cut-mode]')){const active=b.dataset.cutMode===state.cutMode;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active);}
+  const only=!state.layers.terrain&&!state.layers.plane&&state.layers.contours;$('btnContoursOnly').classList.toggle('active',only);$('btnContoursOnly').setAttribute('aria-pressed',only);$('btnContoursOnly').innerHTML='<svg><use href="#i-layers"/></svg><span>'+(only?'返回山体与等高线':'仅看等高线')+'</span>';
+  for(const b of document.querySelectorAll('[data-label]')){b.classList.toggle('active',state.labelParts[b.dataset.label]);b.disabled=!state.layers.labels;b.setAttribute('aria-pressed',state.labelParts[b.dataset.label]);}
+  for(const b of document.querySelectorAll('[data-feature]')){b.classList.toggle('active',b.dataset.feature===state.feature);b.setAttribute('aria-pressed',b.dataset.feature===state.feature);}
+  for(const b of document.querySelectorAll('[data-color]'))b.classList.toggle('active',b.dataset.color===state.color);
+  const f=FEATURES[state.feature];
+  $('stageHeading').textContent=state.feature==='overview'?'一块地形，五种地形部位':'认识'+f.name+'，读懂等高线';
+  $('stageSubtitle').textContent=state.projection>.99?'等高线已垂直投影到同一水平面。':state.cutProgress<1?(state.cutMode==='single'?'当前海拔的单个水平切面从右向左推进。':'多层水平切面从右向左推进，交线随之显现。'):state.clip&&state.layers.plane?'切去重点海拔以上的山体，观察截面边缘。':only?'山体与切面已隐藏，可自由旋转观察立体等高线。':'在自然山体上观察地形，用水平切面揭示等高线。';
+  $('statusLeft').textContent='等高距 '+state.interval+' m　|　'+(state.layers.plane?count+' 层切面':'切割面已隐藏')+'　|　切割 '+Math.round(state.cutProgress*100)+'%'+(state.projection>0?'　|　投影 '+Math.round(state.projection*100)+'%':'');
+  $('modePill').textContent=(tool==='navigate'?'自由观察':'屏幕批注')+' · '+(state.camera.el>1.5?'俯视视图':'三维视图');
+  $('btnTop').classList.toggle('active',state.camera.el>1.5);$('btnOblique').classList.toggle('active',state.camera.el<=1.5);
+  $('btnUndo').disabled=!undo.length;$('btnClear').disabled=!state.strokes.length;
+ }
+ const terrain=C.mesh(), cache=new Map();
+ let allContours=[],currentSegments=[],surfaceBuffer,baseBuffer,gridBuffer,shadowBuffer,planeBuffers=[],frontBuffer,frontStamp='',contourBuffers=[],activeBuffer,capBuffer,guideBuffer,cliffMarkerBuffer;
+ function contoursAt(h){if(!cache.has(h))cache.set(h,C.contour(terrain,h));return cache.get(h);}
+ const materialCache=new Map();
+ function naturalAttributes(p,west,wall,face){
+  if(wall)return{n:face,col:[.85,1,1]};
+  const key=p[0].toFixed(6)+','+p[1].toFixed(6)+','+west;
+  if(materialCache.has(key))return materialCache.get(key);
+  const [x,y,h]=p,e=.025,side=west?'west':'east',edge=C.cliffX(y),xl=west?x-e:Math.max(edge,x-e),xr=west?Math.min(edge,x+e):x+e;
+  const dx=(C.height(xr,y,side)-C.height(xl,y,side))*C.SCALE/(xr-xl),yp=C.height(x+C.cliffX(y+e)-edge,y+e,side),ym=C.height(x+C.cliffX(y-e)-edge,y-e,side),dy=(yp-ym)*C.SCALE/(2*e)-C.cliffDerivative(y)*dx,n=C.norm([-dx,-dy,1]);
+  let surround=0;for(const[a,b]of[[.5,0],[-.5,0],[0,.5],[0,-.5]])surround+=Math.max(0,(C.height(x+a,y+b)-h)*C.SCALE)/.5;
+  const ao=C.clamp(1-surround*.08,.64,1);let shadow=1;
+  for(const d of[.25,.55,1,1.6])if(C.height(x-.634*d,y-.775*d)*C.SCALE>h*C.SCALE+d*1.4+.045){shadow=.48;break;}
+  const a={n,col:[ao,shadow,0]};materialCache.set(key,a);return a;
+ }
+ function surfaceData(tris,flatColor){
+  const out=[];for(const t of tris){const ps=t.p||t,world=ps.map(p=>[p[0],p[1],p[2]*C.SCALE]);const face=C.norm(C.cross(C.sub(world[1],world[0]),C.sub(world[2],world[0]))),west=ps.reduce((s,p)=>s+p[0]-C.cliffX(p[1]),0)<0;
+   for(let i=0;i<3;i++){const a=flatColor?{n:face,col:flatColor}:naturalAttributes(ps[i],west,t.wall,face);out.push(...world[i],...a.n,...a.col);}}
+  return new Float32Array(out);
+ }
+ function lineData(segments){const a=new Float32Array(segments.length*48);let i=0;for(const [p,q]of segments)for(const[t,s]of[[0,-1],[1,-1],[1,1],[0,-1],[1,1],[0,1]]){a.set([p[0],p[1],p[2]*C.SCALE,q[0],q[1],q[2]*C.SCALE,t,s],i);i+=8;}return a;}
+ function buffer(data){const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);return{b,count:data.length};}
+ function replace(old,data){if(old)gl.deleteBuffer(old.b);return buffer(data);}
+ function makeProgram(vs,fs){const sh=(type,s)=>{const q=gl.createShader(type);gl.shaderSource(q,s);gl.compileShader(q);if(!gl.getShaderParameter(q,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(q));return q;};const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,vs));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(p));return p;}
+ let surf,line,SL={},LL={};
+ const SURFACE_VERTEX=`
+ attribute vec3 aPos,aNormal,aColor;
+ uniform mat4 uVP;
+ varying highp vec3 vWorld;
+ varying mediump vec3 vNormal,vColor;
+ void main(){vWorld=aPos;vNormal=aNormal;vColor=aColor;gl_Position=uVP*vec4(aPos,1.0);}`;
+ const SURFACE_FRAGMENT=`
+ precision highp float;
+ varying highp vec3 vWorld;
+ varying mediump vec3 vNormal,vColor;
+ uniform float uAlpha,uCut,uClip,uNatural,uSweep,uSweepLimit;
+ uniform vec2 uSweepNormal;
+ float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+ float noise(vec2 p){vec2 a=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hash(a),hash(a+vec2(1,0)),f.x),mix(hash(a+vec2(0,1)),hash(a+vec2(1,1)),f.x),f.y);}
+ float fbm(vec2 p){return noise(p)*.57+noise(p*2.03+11.0)*.28+noise(p*4.07-7.0)*.15;}
+ float fractures(vec2 p){vec2 cell=floor(p),f=fract(p);float first=10.0,second=10.0;for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){vec2 o=vec2(float(x),float(y));vec2 seed=vec2(hash(cell+o),hash(cell+o+vec2(37.7,17.3)));float d=length(o+seed-f);if(d<first){second=first;first=d;}else if(d<second)second=d;}return second-first;}
+ void main(){
+  float at=dot(vWorld.xy,uSweepNormal);
+  if(uSweep>.5&&at<uSweepLimit)discard;
+  if(uClip>.5&&vWorld.z>uCut+.0001&&at>=uSweepLimit)discard;
+  if(uNatural>1.5){vec2 d=max(abs(vWorld.xy-vec2(.16,.18))-vec2(4.82,3.82),0.0);float a=exp(-dot(d,d)*5.0)*uAlpha;gl_FragColor=vec4(.24,.30,.20,a);return;}
+  vec3 n=normalize(vNormal),sun=normalize(vec3(-.45,-.55,1.0));
+  if(uNatural<.5){gl_FragColor=vec4(vColor*(.67+.33*max(dot(n,sun),0.0)),uAlpha);return;}
+  float patch=fbm(vWorld.xy*7.0),grain=noise(vWorld.xy*145.0+vWorld.z*17.0);
+  vec3 bump=vec3(noise(vWorld.xy*39.0+vec2(.2,0))-noise(vWorld.xy*39.0-vec2(.2,0)),noise(vWorld.xy*39.0+vec2(0,.2))-noise(vWorld.xy*39.0-vec2(0,.2)),0.0);
+  n=normalize(n+bump*.13);
+  float alt=vWorld.z/.0048,steep=smoothstep(.18,.72,1.0-normalize(vNormal).z);
+  vec3 forest=mix(vec3(.18,.31,.17),vec3(.34,.45,.23),patch);
+  vec3 grass=mix(vec3(.39,.45,.28),vec3(.49,.52,.34),patch);
+  vec3 vegetation=mix(forest,grass,smoothstep(430.0,820.0,alt)*.75);
+  float rockPattern=fbm(vWorld.xy*14.0+vWorld.zz*3.0);
+  vec3 rock=mix(vec3(.43,.43,.38),vec3(.70,.66,.55),rockPattern);
+  float rockAmount=clamp(steep*.92+smoothstep(650.0,900.0,alt)*.45+smoothstep(.67,.86,patch)*.25,0.0,1.0);
+  float t=vWorld.y-1.2,edge=2.35+.26*(cos(t*1.35)-1.0)+.045*sin(t*5.4)+.012*sin(t*19.0),distance=vWorld.x-edge;
+  float apron=smoothstep(-.01,.03,distance)*(1.0-smoothstep(.14,.85,distance))*smoothstep(-.7,.1,vWorld.y)*(1.0-smoothstep(2.7,3.4,vWorld.y));
+  rockAmount=max(rockAmount,apron*(.48+.36*noise(vWorld.xy*24.0)));
+  vec3 albedo=mix(vegetation,rock,rockAmount);
+  if(vColor.b>.5){
+    vec2 uv=vWorld.yz*vec2(20.0,27.0)+vec2(noise(vWorld.yz*4.0)*.8);
+    float joint=1.0-smoothstep(.018,.075,fractures(uv)),weather=fbm(vWorld.yz*vec2(4.0,6.0)),stain=fbm(vWorld.yz*vec2(33.0,1.8));
+    albedo=mix(vec3(.42,.42,.36),vec3(.70,.65,.53),weather);
+    albedo*=1.0-joint*.27-smoothstep(.57,.8,stain)*.14;
+    albedo=mix(albedo,vec3(.26,.34,.22),smoothstep(.67,.85,fbm(vWorld.yz*vec2(5.0,2.0)))*.20);
+    vec3 rockBump=vec3(0.0,noise(uv+vec2(.18,0))-noise(uv-vec2(.18,0)),noise(uv+vec2(0,.18))-noise(uv-vec2(0,.18)));
+    n=normalize(n+rockBump*.21);
+  }
+  albedo*=.93+grain*.14;
+  float diffuse=max(dot(n,sun),0.0),ao=vColor.r,shadow=vColor.g;
+  vec3 lit=albedo*(.36*ao+.72*diffuse*shadow);
+  lit+=vec3(.07,.09,.055)*max(0.0,n.z)*ao;
+  gl_FragColor=vec4(lit,uAlpha);
+ }`;
+ const LINE_VERTEX=`
+ attribute vec3 aStart,aEnd;attribute vec2 aCorner;
+ uniform mat4 uVP;uniform vec2 uResolution;uniform float uWidth,uProjection;
+ varying highp vec3 vOriginal;
+ void main(){vec3 a=aStart,b=aEnd;a.z=a.z*(1.0-uProjection)+.009;b.z=b.z*(1.0-uProjection)+.009;vec4 ca=uVP*vec4(a,1.0),cb=uVP*vec4(b,1.0);vec2 d=(cb.xy/cb.w-ca.xy/ca.w)*uResolution;vec2 n=vec2(-d.y,d.x)/max(length(d),.00001);vec4 p=mix(ca,cb,aCorner.x);p.xy+=n*aCorner.y*uWidth/uResolution*p.w;gl_Position=p;vOriginal=mix(aStart,aEnd,aCorner.x);}`;
+ const LINE_FRAGMENT=`
+ precision highp float;uniform vec4 uColor;uniform float uClip,uCut,uSweep,uSweepLimit;uniform vec2 uSweepNormal;varying highp vec3 vOriginal;
+ void main(){if(uSweep>.5&&dot(vOriginal.xy,uSweepNormal)<uSweepLimit)discard;if(uClip>.5&&vOriginal.z>uCut+.003)discard;gl_FragColor=uColor;}`;
+ function initGL(){
+  surf=makeProgram(SURFACE_VERTEX,SURFACE_FRAGMENT);line=makeProgram(LINE_VERTEX,LINE_FRAGMENT);
+  for(const k of ['aPos','aNormal','aColor'])SL[k]=gl.getAttribLocation(surf,k);for(const k of ['uVP','uAlpha','uCut','uClip','uNatural','uSweep','uSweepLimit','uSweepNormal'])SL[k]=gl.getUniformLocation(surf,k);
+  for(const k of ['aStart','aEnd','aCorner'])LL[k]=gl.getAttribLocation(line,k);for(const k of ['uVP','uResolution','uWidth','uProjection','uColor','uClip','uCut','uSweep','uSweepLimit','uSweepNormal'])LL[k]=gl.getUniformLocation(line,k);
+  surfaceBuffer=buffer(surfaceData(terrain));
+  const slab=[],bottom=-45,tri=(a,b,c)=>slab.push([a,b,c]),corners=[[-5,-4],[5,-4],[5,4],[-5,4]];
+  for(let i=0;i<4;i++)for(let j=0;j<150;j++){const a=corners[i],b=corners[(i+1)%4],p=[a[0]+(b[0]-a[0])*j/150,a[1]+(b[1]-a[1])*j/150],q=[a[0]+(b[0]-a[0])*(j+1)/150,a[1]+(b[1]-a[1])*(j+1)/150],hp=C.height(...p),hq=C.height(...q);tri([p[0],p[1],bottom],[q[0],q[1],bottom],[q[0],q[1],hq]);tri([p[0],p[1],bottom],[q[0],q[1],hq],[p[0],p[1],hp]);}
+  tri([-5,-4,bottom],[5,-4,bottom],[5,4,bottom]);tri([-5,-4,bottom],[5,4,bottom],[-5,4,bottom]);baseBuffer=buffer(surfaceData(slab,[.42,.40,.31]));
+  shadowBuffer=buffer(surfaceData([[[-6.2,-5.2,-52],[6.2,-5.2,-52],[6.2,5.2,-52]],[[-6.2,-5.2,-52],[6.2,5.2,-52],[-6.2,5.2,-52]]],[1,1,1]));
+  const grid=[];for(let x=-6;x<=6;x++)grid.push([[x,-5,-50],[x,5,-50]]);for(let y=-5;y<=5;y++)grid.push([[-6,y,-50],[6,y,-50]]);gridBuffer=buffer(lineData(grid));
+  rebuildContours();rebuildSlice();rebuildGuide();
+  gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.disable(gl.CULL_FACE);
+ }
+ function rebuildContours(){
+  allContours=[];if(gl)for(const b of contourBuffers)gl.deleteBuffer(b.b);contourBuffers=[];
+  for(let h=state.interval;h<=800;h+=state.interval){const seg=contoursAt(h);if(!seg.length)continue;allContours.push({h,segments:seg});if(gl)contourBuffers.push({...buffer(lineData(seg)),h});}
+  rebuildPlanes();frontStamp='';
+  dirty=true;
+ }
+ function rebuildPlanes(){if(!gl)return;for(const b of planeBuffers){gl.deleteBuffer(b.surface.b);gl.deleteBuffer(b.edge.b);}planeBuffers=allContours.map(({h})=>{const p=[[-5.15,-4.15,h],[5.15,-4.15,h],[5.15,4.15,h],[-5.15,4.15,h]];return{h,surface:buffer(surfaceData([[p[0],p[1],p[2]],[p[0],p[2],p[3]]],h===state.elevation?[.89,.70,.44]:[.38,.69,.73])),edge:buffer(lineData(p.map((a,i)=>[a,p[(i+1)%4]])))};});}
+ function rebuildSlice(){currentSegments=contoursAt(state.elevation);if(gl){activeBuffer=replace(activeBuffer,lineData(currentSegments));capBuffer=replace(capBuffer,surfaceData(C.cap(terrain,state.elevation),[.84,.70,.47]));rebuildPlanes();}dirty=true;}
+ function planeLevels(){return allContours.filter(c=>(state.cutMode!=='single'||c.h===state.elevation)&&(!(state.clip&&state.layers.plane)||c.h<=state.elevation));}
+ function contourVisible(h){return state.cutMode!=='single'||h===state.elevation;}
+ function sweptSegments(h,segments){return contourVisible(h)?C.sweepSegments(segments,state.cutAz,state.cutProgress):[];}
+ function rebuildFront(){const stamp=[state.cutAz,state.cutProgress,state.interval,state.cutMode,state.elevation,state.clip,state.layers.plane].join(':');if(stamp===frontStamp)return;frontStamp=stamp;if(gl)frontBuffer=replace(frontBuffer,lineData(planeLevels().flatMap(({h})=>C.sweepFront(state.cutAz,state.cutProgress,h))));}
+ function rebuildGuide(){
+  if(!gl)return;let seg=[];
+  const path=state.feature==='ridge'?[[-1.69,-.6],[-1.88,0],[-2.05,.9],[-2.18,1.8],[-2.23,2.3]]:state.feature==='valley'?[[-.01,-.3],[-.13,.35],[-.32,1.35],[-.56,2.2],[-.66,2.7]]:[];
+  for(let i=1;i<path.length;i++){for(let j=0;j<12;j++){const a=path[i-1],b=path[i],p=[a[0]+(b[0]-a[0])*j/12,a[1]+(b[1]-a[1])*j/12],q=[a[0]+(b[0]-a[0])*(j+1)/12,a[1]+(b[1]-a[1])*(j+1)/12];seg.push([[...p,C.height(...p)+3],[...q,C.height(...q)+3]]);}}
+  guideBuffer=replace(guideBuffer,lineData(seg));const x=C.cliffX(1.2),hi=C.height(x,1.2,'west'),lo=C.height(x,1.2,'east');cliffMarkerBuffer=replace(cliffMarkerBuffer,lineData([[[x+.005,1.2,hi],[x+.005,1.2,lo]]]));
+ }
+ function sweepUniforms(loc,enabled){const s=C.sweepFrame(state.cutAz,state.cutProgress);gl.uniform1f(loc.uSweep,enabled&&state.cutProgress<1?1:0);gl.uniform1f(loc.uSweepLimit,s.limit);gl.uniform2f(loc.uSweepNormal,...s.normal);}
+ function drawSurface(b,alpha=1,clip=false,natural=0,sweep=false){if(!b?.count)return;gl.useProgram(surf);gl.bindBuffer(gl.ARRAY_BUFFER,b.b);for(const[k,offset]of[['aPos',0],['aNormal',12],['aColor',24]]){gl.enableVertexAttribArray(SL[k]);gl.vertexAttribPointer(SL[k],3,gl.FLOAT,false,36,offset);}gl.uniformMatrix4fv(SL.uVP,false,VP);gl.uniform1f(SL.uAlpha,alpha);gl.uniform1f(SL.uClip,clip?1:0);gl.uniform1f(SL.uCut,state.elevation*C.SCALE);gl.uniform1f(SL.uNatural,natural);sweepUniforms(SL,sweep);gl.drawArrays(gl.TRIANGLES,0,b.count/9);for(const k of['aPos','aNormal','aColor'])gl.disableVertexAttribArray(SL[k]);}
+ function drawLines(b,color,width=1,project=0,clip=false,sweep=false){if(!b?.count)return;gl.useProgram(line);gl.bindBuffer(gl.ARRAY_BUFFER,b.b);for(const[k,size,offset]of[['aStart',3,0],['aEnd',3,12],['aCorner',2,24]]){gl.enableVertexAttribArray(LL[k]);gl.vertexAttribPointer(LL[k],size,gl.FLOAT,false,32,offset);}gl.uniformMatrix4fv(LL.uVP,false,VP);gl.uniform2f(LL.uResolution,W,H);gl.uniform1f(LL.uWidth,width);gl.uniform1f(LL.uProjection,project);gl.uniform4fv(LL.uColor,color);gl.uniform1f(LL.uClip,clip?1:0);gl.uniform1f(LL.uCut,state.elevation*C.SCALE);sweepUniforms(LL,sweep);gl.drawArrays(gl.TRIANGLES,0,b.count/8);for(const k of['aStart','aEnd','aCorner'])gl.disableVertexAttribArray(LL[k]);}
+ function labelVisible(key){return state.layers.labels&&state.labelParts[key]!==false;}
+ function cutReached(p){const{normal:n,limit}=C.sweepFrame(state.cutAz,state.cutProgress);return p[0]*n[0]+p[1]*n[1]>=limit;}
+ function render3D(){
+  if(!gl)return;gl.viewport(0,0,canvas.width,canvas.height);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.depthMask(true);
+  VP=C.cameraMatrix(state.camera,W/H);if(state.layers.terrain){gl.depthMask(false);drawSurface(shadowBuffer,.16,false,2);gl.depthMask(true);}drawLines(gridBuffer,[.54,.64,.48,.10],.6);
+  const clipping=state.clip&&state.layers.plane;
+  if(state.layers.terrain){drawSurface(baseBuffer,1);gl.depthMask(state.projection<.001);gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(1,1);drawSurface(surfaceBuffer,1-state.projection*.78,clipping,1);gl.disable(gl.POLYGON_OFFSET_FILL);gl.depthMask(true);if(clipping)drawSurface(capBuffer,1,false,0,true);}
+  if(state.layers.plane&&state.cutProgress>0){gl.depthMask(false);for(const b of planeBuffers){if((state.cutMode==='single'&&b.h!==state.elevation)||(clipping&&b.h>state.elevation))continue;drawSurface(b.surface,state.planeOpacity+(b.h===state.elevation?.04:0),false,0,true);drawLines(b.edge,[.27,.52,.55,.36],.7,0,false,true);}rebuildFront();drawLines(frontBuffer,[.94,.49,.20,.9],2.2,0,clipping);gl.depthMask(true);}
+  if(state.projection>.001)gl.disable(gl.DEPTH_TEST);
+  if(state.layers.contours){const onTerrain=state.layers.terrain&&state.projection<.01;for(const b of contourBuffers){if(!contourVisible(b.h)||b.h===state.elevation)continue;drawLines(b,onTerrain?[.96,.91,.70,b.h%200===0?.88:.68]:[.38,.30,.18,.88],b.h%200===0?1.55:1.1,state.projection,clipping,true);}drawLines(activeBuffer,[1,.55,.18,1],2.8,state.projection,clipping,true);}
+  if(labelVisible(state.feature)&&(state.feature==='ridge'||state.feature==='valley'))drawLines(guideBuffer,[1,.47,.18,1],3,state.projection,clipping);
+  if(labelVisible(state.feature)&&state.feature==='cliff')drawLines(cliffMarkerBuffer,[1,.47,.18,1],3,state.projection,clipping);
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthMask(true);drawHUD();drawMap();
+ }
+ function point(f){const [x,y]=f.p;let h=C.height(x,y);if(f===FEATURES.cliff)h=(C.height(x,y,'west')+C.height(x,y,'east'))/2;return[x,y,h];}
+ function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+ function drawElevationRuler(){
+  const m=C.elevationRuler(state.camera,W,H),x=W-20,upper=108,lower=H-43;
+  hc.save();hc.textAlign='right';hc.textBaseline='middle';
+  if(m.length<14){roundRect(hc,W-96,109,89,62,7);hc.fillStyle='#f7faf1df';hc.fill();hc.fillStyle='#668059';hc.font='10px "Microsoft YaHei",sans-serif';hc.fillText('海拔 / m',W-14,122);hc.fillText('0–850',W-14,141);hc.font='9px "Microsoft YaHei",sans-serif';hc.fillText('俯视按数值判读',W-14,158);hc.restore();return;}
+  const titleY=C.clamp(m.top-20,112,H-65),backTop=Math.max(103,Math.min(titleY-13,m.top-10)),backBottom=Math.min(H-38,Math.max(titleY+12,m.base+13));
+  if(backBottom>backTop){roundRect(hc,W-82,backTop,76,backBottom-backTop,7);hc.fillStyle='#f7faf1c9';hc.fill();}
+  hc.save();hc.beginPath();hc.rect(W-84,upper,83,Math.max(1,lower-upper));hc.clip();hc.strokeStyle='#7e9573';hc.lineWidth=1;hc.beginPath();hc.moveTo(x,m.top);hc.lineTo(x,m.base);hc.stroke();
+  const ticks=m.length>180?[0,200,400,600,850]:m.length>85?[0,400,850]:[0,850];
+  hc.font='10px "Microsoft YaHei",sans-serif';hc.fillStyle='#5d7752';
+  for(const value of ticks){const y=m.base-value/850*m.length;if(y<upper+5||y>lower-5||Math.abs(y-titleY)<14)continue;hc.beginPath();hc.moveTo(x-5,y);hc.lineTo(x+3,y);hc.stroke();hc.fillText(String(value),x-10,y);}
+  if(m.top<upper){const y=Math.max(upper+3,titleY+16);hc.beginPath();hc.moveTo(x-3,y+5);hc.lineTo(x,y);hc.lineTo(x+3,y+5);hc.stroke();}
+  if(m.base>lower){hc.beginPath();hc.moveTo(x-3,lower-8);hc.lineTo(x,lower-3);hc.lineTo(x+3,lower-8);hc.stroke();}
+  hc.restore();roundRect(hc,W-82,titleY-10,76,20,5);hc.fillStyle='#f7faf1ee';hc.fill();hc.fillStyle='#607b56';hc.font='10px "Microsoft YaHei",sans-serif';hc.fillText('海拔 / m',W-13,titleY);hc.restore();
+ }
+ function drawHUD(){
+  hc.setTransform(DPR,0,0,DPR,0,0);hc.clearRect(0,0,W,H);labels=[];if(!VP)return;
+  if(state.layers.labels)for(const[key,f]of Object.entries(FEATURES)){
+   if(!f.p||!labelVisible(key))continue;const p=point(f);if(state.clip&&state.layers.plane&&p[2]>state.elevation+10&&cutReached(p))continue;
+   const q=C.project([p[0],p[1],p[2]*(1-state.projection)],VP,W,H),selected=key===state.feature,dx=f.offset[0],dy=f.offset[1];
+   const x=q[0]+dx,y=q[1]+dy;if(x<12||x>W-65||y<80||y>H-50)continue;
+   hc.strokeStyle=selected?'#d87338':'#75876c';hc.lineWidth=1;hc.beginPath();hc.moveTo(q[0],q[1]);hc.lineTo(x+25,y+13);hc.stroke();hc.fillStyle=selected?'#db7b40':'#607d55';hc.beginPath();hc.arc(q[0],q[1],selected?4:3,0,PI*2);hc.fill();
+   const bw=61,bh=25;roundRect(hc,x,y,bw,bh,7);hc.fillStyle=selected?'#fff3dd':'#fffef6ed';hc.fill();hc.strokeStyle=selected?'#d8a76c':'#d8e2cf';hc.stroke();hc.fillStyle=selected?'#a8652e':'#596e50';hc.font='11px "Microsoft YaHei",sans-serif';hc.textBaseline='middle';hc.fillText(f.number+' '+f.name,x+9,y+13);labels.push({key,x,y,w:bw,h:bh});
+  }
+  if(state.layers.plane&&cutReached([4.9,3.9])){const q=C.project([4.9,3.9,state.elevation],VP,W,H);if(q[0]>5&&q[0]<W-80&&q[1]>100&&q[1]<H-40){roundRect(hc,q[0]+6,q[1]-11,65,23,6);hc.fillStyle='#fff7e9';hc.fill();hc.strokeStyle='#e4c89f';hc.stroke();hc.fillStyle='#b2753e';hc.font='11px "Microsoft YaHei",sans-serif';hc.textBaseline='middle';hc.fillText(state.elevation+' m',q[0]+15,q[1]+1);}}
+  if(state.layers.contours){for(const h of(state.cutMode==='single'?[state.elevation]:[200,400,600,800])){if(h%state.interval!==0||(state.clip&&state.layers.plane&&h>state.elevation))continue;const seg=sweptSegments(h,contoursAt(h));if(!seg.length)continue;let best=seg[0][0];for(const[a]of seg)if(a[0]+.48*a[1]>best[0]+.48*best[1])best=a;const q=C.project([best[0],best[1],h*(1-state.projection)],VP,W,H);if(q[0]<W-70&&q[0]>40&&q[1]>100&&q[1]<H-160){hc.font='10px "Microsoft YaHei",sans-serif';hc.lineWidth=3;hc.strokeStyle='#f5f6e7';hc.strokeText(String(h),q[0]+5,q[1]-4);hc.fillStyle='#816d49';hc.fillText(String(h),q[0]+5,q[1]-4);}}}
+  const cx=W-51,cy=65,dx=Math.sin(state.camera.az)*21,dy=-Math.cos(state.camera.az)*Math.sin(state.camera.el)*21;hc.strokeStyle='#809474';hc.lineWidth=1.2;hc.beginPath();hc.moveTo(cx-dx*.65,cy-dy*.65);hc.lineTo(cx+dx,cy+dy);hc.stroke();const ang=Math.atan2(dy,dx);hc.beginPath();hc.moveTo(cx+dx,cy+dy);hc.lineTo(cx+dx-7*Math.cos(ang-.4),cy+dy-7*Math.sin(ang-.4));hc.moveTo(cx+dx,cy+dy);hc.lineTo(cx+dx-7*Math.cos(ang+.4),cy+dy-7*Math.sin(ang+.4));hc.stroke();hc.fillStyle='#68825c';hc.font='11px sans-serif';hc.textAlign='center';hc.fillText('北',cx+dx*1.35,cy+dy*1.35-3);hc.textAlign='left';
+  drawElevationRuler();
+ }
+ function drawMap(target=mc,width=map.clientWidth,height=map.clientHeight,exporting=false){
+  if(!width||!height)return;
+  const ctx=target;if(!exporting){map.width=Math.round(width*DPR);map.height=Math.round(height*DPR);ctx.setTransform(DPR,0,0,DPR,0,0);}ctx.clearRect(0,0,width,height);ctx.fillStyle='#fbfaf0';ctx.fillRect(0,0,width,height);
+  const scale=Math.min((width-22)/10,(height-14)/8),ox=(width-10*scale)/2,oy=(height-8*scale)/2,xy=p=>[ox+(p[0]+5)*scale,oy+(p[1]+4)*scale];
+  ctx.strokeStyle='#e3e8d9';ctx.lineWidth=.5;for(let x=-5;x<=5;x++){ctx.beginPath();ctx.moveTo(...xy([x,-4]));ctx.lineTo(...xy([x,4]));ctx.stroke();}for(let y=-4;y<=4;y++){ctx.beginPath();ctx.moveTo(...xy([-5,y]));ctx.lineTo(...xy([5,y]));ctx.stroke();}
+  if(state.layers.contours)for(const{h,segments}of allContours){if(state.clip&&state.layers.plane&&h>state.elevation)continue;ctx.strokeStyle=h%200===0?'#917754':'#b69b74';ctx.lineWidth=h%200===0?1.05:.65;ctx.beginPath();for(const[a,b]of sweptSegments(h,segments)){ctx.moveTo(...xy(a));ctx.lineTo(...xy(b));}ctx.stroke();}
+  if(state.layers.contours){ctx.strokeStyle='#df8346';ctx.lineWidth=1.8;ctx.beginPath();for(const[a,b]of C.sweepSegments(currentSegments,state.cutAz,state.cutProgress)){ctx.moveTo(...xy(a));ctx.lineTo(...xy(b));}ctx.stroke();}
+  for(const[k,f]of Object.entries(FEATURES)){if(!f.p||!labelVisible(k))continue;const p=xy(f.p),sel=k===state.feature;ctx.beginPath();ctx.arc(p[0],p[1],sel?6:4.8,0,PI*2);ctx.fillStyle=sel?'#d27e43':'#6d8562';ctx.fill();ctx.fillStyle='#fff';ctx.font='8px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(f.number,p[0],p[1]+.3);}
+  if(state.layers.contours)for(const h of(state.cutMode==='single'?[state.elevation]:[200,400,600,800])){if(h%state.interval||(state.clip&&state.layers.plane&&h>state.elevation))continue;const seg=sweptSegments(h,contoursAt(h));if(!seg.length)continue;const a=seg.reduce((p,s)=>s[0][0]<p[0]?s[0]:p,seg[0][0]),p=xy(a);ctx.font='8px sans-serif';ctx.lineWidth=2;ctx.strokeStyle='#fffcef';ctx.strokeText(String(h),p[0]+6,p[1]);ctx.fillStyle='#8e7752';ctx.fillText(String(h),p[0]+6,p[1]);}
+  ctx.fillStyle='#758268';ctx.font='9px sans-serif';ctx.textAlign='right';ctx.fillText('北 ↑',width-5,10);ctx.textAlign='left';
+ }
+ function drawInk(){ic.setTransform(DPR,0,0,DPR,0,0);ic.clearRect(0,0,W,H);for(const s of state.strokes)paintStroke(ic,s,W,H);}
+ function paintStroke(ctx,s,w,h){if(!s.points.length)return;ctx.save();ctx.globalAlpha=s.tool==='marker'?.3:1;ctx.strokeStyle=s.color;ctx.fillStyle=s.color;ctx.lineWidth=s.width*Math.min(w,h)*(s.tool==='marker'?5:1);ctx.lineJoin=ctx.lineCap='round';ctx.beginPath();ctx.moveTo(s.points[0][0]*w,s.points[0][1]*h);for(const p of s.points.slice(1))ctx.lineTo(p[0]*w,p[1]*h);ctx.stroke();if(s.points.length===1){ctx.beginPath();ctx.arc(s.points[0][0]*w,s.points[0][1]*h,ctx.lineWidth/2,0,PI*2);ctx.fill();}ctx.restore();}
+ function resize(){const r=workspace.getBoundingClientRect();W=Math.max(1,r.width);H=Math.max(1,r.height);DPR=Math.min(devicePixelRatio||1,2);for(const c of[canvas,hud,ink]){c.width=Math.round(W*DPR);c.height=Math.round(H*DPR);}drawInk();dirty=true;}
+ function setTool(t){tool=t;if(t!=='navigate'&&playing)setPlay(false);for(const b of document.querySelectorAll('[data-tool]')){b.classList.toggle('active',b.dataset.tool===t);b.setAttribute('aria-pressed',b.dataset.tool===t);}ink.classList.toggle('drawing',t!=='navigate');$('brushHint').textContent=t==='navigate'?'拖动旋转 · 滚轮缩放 · 右键拖动平移':'屏幕批注 · 暂停旋转 · 切回箭头继续观察';$('interactionHint').textContent=t==='navigate'?'左键旋转　·　滚轮缩放　·　右键平移':'批注固定在屏幕上 · 按 V 返回地形观察';syncUI();dirty=true;}
+ function animateCamera(to){cameraTween={from:{...state.camera},to,start:performance.now(),duration:550};changed();}
+ function setView(top){setTool('navigate');animateCamera(top?{az:0,el:PI/2-.0001,span:4.65,tx:0,ty:0,tz:0}:defaultCamera());}
+ function selectFeature(k){if(playing)setPlay(false);state.cutProgress=1;state.feature=k;state.layers.terrain=true;state.layers.contours=true;state.clip=false;state.projection=0;projectionTween=null;setTool('navigate');rebuildGuide();const f=FEATURES[k];if(k==='overview')animateCamera(defaultCamera());else {const p=point(f);animateCamera({az:k==='cliff'?1.02:.46,el:.76,span:4.6,tx:p[0]*.25,ty:p[1]*.22,tz:1.1});}syncUI();changed();}
+ function setPlay(p){playing=p;playTime=performance.now();if(p){if(state.cutProgress>=1){state.cutProgress=0;state.cutAz=state.camera.az;}else if(state.cutProgress===0)state.cutAz=state.camera.az;state.layers.terrain=true;state.layers.plane=true;state.layers.contours=true;state.projection=0;projectionTween=cameraTween=null;setTool('navigate');}syncUI();changed();}
+ function saveDownload(blob,name){const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);}
+ const safeName=s=>(s||'等高线课堂').replace(/[\\/:*?"<>|\u0000-\u001f]/g,'_').slice(0,60);
+ function saveLesson(){
+  state.savedAt=Date.now();const clone=document.documentElement.cloneNode(true);clone.querySelector('#classroom-state').textContent=JSON.stringify(state).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
+  clone.querySelector('#helpModal').hidden=true;clone.querySelector('#toast').classList.remove('show');clone.querySelector('#sidebar').classList.remove('open');clone.querySelector('#ink').classList.remove('drawing');
+  clone.querySelector('title').textContent=state.title+' · 等高线地形课堂';const text='<!DOCTYPE html>\n'+clone.outerHTML;saveDownload(new Blob([text],{type:'text/html;charset=utf-8'}),safeName(state.title)+'_课堂.html');changed();toast('已生成课堂网页，打开下载的 HTML 即可继续授课');
+ }
+ async function loadLesson(file){
+  if(!file)return;if(file.size>8*1024*1024){toast('课堂文件过大，请选择小于 8 MB 的文件');return;}
+  try{const text=await file.text();let raw;if(text.trimStart().startsWith('{'))raw=JSON.parse(text);else{const doc=new DOMParser().parseFromString(text,'text/html'),el=doc.getElementById('classroom-state');if(!el)throw Error('文件中没有课堂进度');raw=JSON.parse(el.textContent);}const next=validate(raw);setPlay(false);cameraTween=projectionTween=null;state=next;undo=[];setTool('navigate');rebuildContours();rebuildSlice();rebuildGuide();syncUI();drawInk();changed();toast('课堂已载入：'+state.title);}catch(e){toast('无法载入：'+e.message);}
+  $('lessonFile').value='';
+ }
+ function saveImage(){
+  if(!gl){toast('三维画面未启动，暂不能导出');return;}render3D();const out=document.createElement('canvas');out.width=Math.round(W*DPR);out.height=Math.round((H+55)*DPR);const ctx=out.getContext('2d');ctx.scale(DPR,DPR);ctx.fillStyle='#eef3e7';ctx.fillRect(0,0,W,H+55);ctx.drawImage(canvas,0,0,W,H);ctx.drawImage(hud,0,0,W,H);ctx.drawImage(ink,0,0,W,H);
+  ctx.fillStyle='#fffef8';ctx.fillRect(0,H,W,55);ctx.fillStyle='#355441';ctx.font='14px "Microsoft YaHei",sans-serif';ctx.fillText(state.title,20,H+22);ctx.font='10px "Microsoft YaHei",sans-serif';ctx.fillStyle='#839178';ctx.fillText('等高距 '+state.interval+' m · 切面 '+state.elevation+' m · 教学示意模型（垂直比例经夸张）',20,H+41);
+  out.toBlob(b=>{if(b)saveDownload(b,safeName(state.title)+'_板书.png');else toast('图片导出失败，请重试');},'image/png');
+ }
+ for(const b of document.querySelectorAll('[data-feature]'))b.onclick=()=>selectFeature(b.dataset.feature);
+ for(const b of document.querySelectorAll('[data-cut-mode]'))b.onclick=()=>{const next=b.dataset.cutMode;if(next==='single'&&state.cutMode!=='single'){setPlay(false);state.cutProgress=0;state.cutAz=state.camera.az;}state.cutMode=next;state.layers.plane=true;syncUI();changed();};
+ for(const b of document.querySelectorAll('[data-label]'))b.onclick=()=>{state.labelParts[b.dataset.label]=!state.labelParts[b.dataset.label];syncUI();changed();};
+ for(const b of document.querySelectorAll('[data-tool]'))b.onclick=()=>setTool(b.dataset.tool);
+ for(const b of document.querySelectorAll('[data-color]'))b.onclick=()=>{state.color=b.dataset.color;if(tool==='navigate'||tool==='eraser')setTool('pen');syncUI();changed();};
+ for(const[id,k]of[['showTerrain','terrain'],['showPlane','plane'],['showContours','contours'],['showLabels','labels']])$(id).onchange=e=>{state.layers[k]=e.target.checked;if(k==='plane'&&!e.target.checked&&playing)setPlay(false);syncUI();changed();};
+ $('clipTop').onchange=e=>{state.clip=e.target.checked;syncUI();changed();};
+ $('elevation').oninput=e=>{state.elevation=C.clamp(Math.round(+e.target.value/state.interval)*state.interval,minLevel(state.interval),800);rebuildSlice();syncUI();changed();};
+ $('interval').onchange=e=>{state.interval=+e.target.value;state.elevation=C.clamp(Math.round(state.elevation/state.interval)*state.interval,minLevel(state.interval),800);rebuildContours();rebuildSlice();syncUI();changed();};
+ $('cutProgress').oninput=e=>{if(playing)setPlay(false);if(state.cutProgress>=1)state.cutAz=state.camera.az;state.cutProgress=+e.target.value/100;state.layers.plane=true;syncUI();changed();};
+ $('cutSpeed').onchange=e=>{state.cutDuration=+e.target.value;changed();};
+ $('planeOpacity').oninput=e=>{state.planeOpacity=(100- +e.target.value)/100;syncUI();changed();};
+ $('btnCutReset').onclick=()=>{setPlay(false);state.cutProgress=0;state.cutAz=state.camera.az;state.layers.plane=true;state.layers.contours=true;syncUI();changed();};
+ $('btnCutComplete').onclick=()=>{setPlay(false);state.cutProgress=1;syncUI();changed();};
+ $('btnContoursOnly').onclick=()=>{const wasOnly=!state.layers.terrain&&!state.layers.plane&&state.layers.contours;setPlay(false);state.layers.terrain=wasOnly;state.layers.plane=false;state.layers.contours=true;state.clip=false;state.cutProgress=1;state.projection=0;projectionTween=null;setTool('navigate');syncUI();changed();};
+ $('projection').oninput=e=>{if(playing)setPlay(false);projectionTween=null;state.projection=+e.target.value/100;syncUI();changed();};
+ $('penWidth').oninput=e=>{state.width=+e.target.value;$('penWidthValue').textContent=state.width;changed();};
+ $('lessonTitle').oninput=e=>{state.title=e.target.value;changed();};
+ $('btnPlay').onclick=()=>setPlay(!playing);
+ $('stepCut').onclick=()=>{setPlay(false);state.clip=false;state.cutProgress=0;state.cutAz=state.camera.az;setPlay(true);};
+ $('stepTrace').onclick=()=>{setPlay(false);state.cutProgress=1;state.layers={...state.layers,terrain:true,plane:true,contours:true};state.clip=true;state.projection=0;projectionTween=null;setView(false);syncUI();changed();};
+ $('stepMap').onclick=()=>{setPlay(false);state.cutProgress=1;state.layers={...state.layers,terrain:false,plane:false,contours:true};state.clip=false;projectionTween={from:state.projection,start:performance.now(),duration:1300};setView(true);syncUI();changed();};
+ $('btnOblique').onclick=()=>{state.projection=0;projectionTween=null;setView(false);syncUI();};$('btnTop').onclick=()=>setView(true);map.onclick=()=>setView(true);$('btnReset').onclick=()=>{cameraTween=projectionTween=null;state.camera=defaultCamera();state.projection=0;syncUI();changed();};
+ $('btnFull').onclick=()=>{if(!document.fullscreenElement){document.documentElement.requestFullscreen?.().catch(()=>toast('当前浏览器不允许全屏，可按 F11'));}else document.exitFullscreen?.();};
+ $('btnMenu').onclick=()=>$('sidebar').classList.toggle('open');
+ $('mapDetails').addEventListener('toggle',()=>{dirty=true;});
+ const openHelp=()=>{$('helpModal').hidden=false;$('btnCloseHelp').focus();};const closeHelp=()=>{$('helpModal').hidden=true;$('btnHelp').focus();};$('btnHelp').onclick=openHelp;$('btnCloseHelp').onclick=closeHelp;$('helpModal').onclick=e=>{if(e.target===$('helpModal'))closeHelp();};
+ $('btnSave').onclick=saveLesson;$('btnLoad').onclick=()=>$('lessonFile').click();$('lessonFile').onchange=e=>loadLesson(e.target.files[0]);$('btnImage').onclick=saveImage;
+ function pushUndo(){undo.push(JSON.stringify(state.strokes));if(undo.length>35)undo.shift();}
+ function undoStroke(){if(!undo.length)return;state.strokes=JSON.parse(undo.pop());drawInk();syncUI();changed();}
+ $('btnUndo').onclick=undoStroke;$('btnClear').onclick=()=>{if(state.strokes.length){pushUndo();state.strokes=[];drawInk();syncUI();changed();}};
+ $('btnFresh').onclick=()=>{if(!confirm('开始新课堂？当前视角和批注将重置。需要留存时请先保存课堂网页。'))return;setPlay(false);cameraTween=projectionTween=null;state=defaults();undo=[];setTool('navigate');rebuildContours();rebuildSlice();rebuildGuide();syncUI();drawInk();changed();toast('已开始新课堂');};
+ let drag=null,pointers=new Map(),pinch=null;
+ canvas.addEventListener('contextmenu',e=>e.preventDefault());
+ canvas.addEventListener('pointerdown',e=>{if(tool!=='navigate')return;cameraTween=null;canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===2){const p=[...pointers.values()];pinch={distance:Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]),span:state.camera.span};drag=null;}else drag={id:e.pointerId,x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,pan:e.button===2||e.shiftKey};});
+ canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,[e.clientX,e.clientY]);if(pointers.size===2&&pinch){const p=[...pointers.values()],d=Math.hypot(p[0][0]-p[1][0],p[0][1]-p[1][1]);state.camera.span=C.clamp(pinch.span*pinch.distance/Math.max(1,d),2,14);dirty=true;return;}if(!drag||drag.id!==e.pointerId)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y,c=state.camera;drag.x=e.clientX;drag.y=e.clientY;if(drag.pan){const amount=c.span*2/H,sy=Math.max(.2,Math.sin(c.el));c.tx=C.clamp(c.tx-(dx*Math.cos(c.az)+dy*Math.sin(c.az)/sy)*amount,-8,8);c.ty=C.clamp(c.ty+(dx*Math.sin(c.az)-dy*Math.cos(c.az)/sy)*amount,-8,8);}else{c.az-=dx*.006;c.el=C.clamp(c.el+dy*.005,.08,PI/2-.0001);}syncUI();dirty=true;});
+ function endDrag(e){if(drag&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)<4&&e.type==='pointerup'&&e.button===0){const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,hit=labels.find(a=>x>=a.x&&x<=a.x+a.w&&y>=a.y&&y<=a.y+a.h);if(hit)selectFeature(hit.key);}pointers.delete(e.pointerId);drag=null;pinch=null;changed();}
+ canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+ canvas.addEventListener('wheel',e=>{e.preventDefault();cameraTween=null;state.camera.span=C.clamp(state.camera.span*Math.exp(e.deltaY*.001),2,14);changed();},{passive:false});
+ let stroke=null,inking=false;
+ const penPoint=e=>{const r=ink.getBoundingClientRect();return[C.clamp((e.clientX-r.left)/W,0,1),C.clamp((e.clientY-r.top)/H,0,1)];};
+ function eraseAt(p){const x=p[0]*W,y=p[1]*H,radius=16;state.strokes=state.strokes.filter(s=>{for(let i=0;i<s.points.length;i++){const a=s.points[i],b=s.points[Math.min(i+1,s.points.length-1)],ax=a[0]*W,ay=a[1]*H,bx=b[0]*W,by=b[1]*H,dx=bx-ax,dy=by-ay,t=C.clamp(((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy||1),0,1);if(Math.hypot(x-ax-t*dx,y-ay-t*dy)<=radius+s.width*Math.min(W,H)/2)return false;}return true;});}
+ ink.addEventListener('pointerdown',e=>{if(tool==='navigate'||e.button!==0)return;e.preventDefault();ink.setPointerCapture(e.pointerId);pushUndo();inking=true;const p=penPoint(e);if(tool==='eraser')eraseAt(p);else{stroke={tool,color:state.color,width:state.width/Math.min(W,H),points:[p]};state.strokes.push(stroke);}drawInk();syncUI();});
+ ink.addEventListener('pointermove',e=>{if(!inking)return;const p=penPoint(e);if(tool==='eraser')eraseAt(p);else if(stroke){const q=stroke.points.at(-1);if(Math.hypot((p[0]-q[0])*W,(p[1]-q[1])*H)>1)stroke.points.push(p);}drawInk();});
+ function endInk(){if(!inking)return;inking=false;stroke=null;syncUI();changed();}ink.addEventListener('pointerup',endInk);ink.addEventListener('pointercancel',endInk);
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeHelp();$('sidebar').classList.remove('open');return;}if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||!$('helpModal').hidden)return;if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undoStroke();return;}if(e.ctrlKey||e.metaKey||e.altKey)return;switch(e.key.toLowerCase()){case'v':setTool('navigate');break;case'p':setTool('pen');break;case'e':setTool('eraser');break;case't':setView(true);break;case'0':$('btnReset').click();break;case' ':e.preventDefault();setPlay(!playing);break;}});
+ window.addEventListener('pagehide',()=>{try{state.savedAt=Date.now();localStorage.setItem(storageKey,JSON.stringify(state));}catch(e){}});
+ canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();playing=false;$('errorPanel').hidden=false;$('errorPanel').querySelector('h2').textContent='三维图形上下文已暂停';toast('图形资源暂时中断，可保存课堂后重新打开网页');});
+ let ready=false;try{if(!gl)throw Error('WebGL unavailable');initGL();ready=true;$('errorPanel').hidden=true;}catch(e){console.warn('3D initialization failed:',e.message);$('errorPanel').hidden=false;rebuildContours();currentSegments=contoursAt(state.elevation);}
+ const observer=new ResizeObserver(resize);observer.observe(workspace);setTool('navigate');resize();drawInk();if(restored){$('saveStatus').textContent='已恢复本机上次课堂';toast('已恢复上次的视角、参数与批注');}else if(embedded)$('saveStatus').textContent='已打开保存的课堂';
+ function frame(t){
+  if(cameraTween){const q=C.clamp((t-cameraTween.start)/cameraTween.duration,0,1),k=1-Math.pow(1-q,3);for(const key of Object.keys(state.camera))state.camera[key]=cameraTween.from[key]+(cameraTween.to[key]-cameraTween.from[key])*k;dirty=true;if(q===1){cameraTween=null;syncUI();changed();}}
+  if(projectionTween){const q=C.clamp((t-projectionTween.start)/projectionTween.duration,0,1);state.projection=projectionTween.from+(1-projectionTween.from)*(q*q*(3-2*q));syncUI();dirty=true;if(q===1){projectionTween=null;changed();}}
+  if(playing&&t-playTime>=33){const dt=Math.max(0,Math.min(250,t-playTime));playTime=t;state.cutProgress=C.clamp(state.cutProgress+dt/state.cutDuration,0,1);if(state.cutProgress>=1){playing=false;changed();}syncUI();dirty=true;}
+  if(dirty){dirty=false;if(ready)render3D();else drawMap();}requestAnimationFrame(frame);
+ }
+ requestAnimationFrame(frame);
+ // Stable, read-only diagnostics for future maintenance and numerical validation.
+ window.ContourClassroom={version:'5.0.0',getState:()=>JSON.parse(JSON.stringify(state)),validate,features:FEATURES,getPlaneLevels:()=>planeLevels().map(c=>c.h),getVisibleContourLevels:()=>state.layers.contours?allContours.filter(c=>(!(state.clip&&state.layers.plane)||c.h<=state.elevation)&&sweptSegments(c.h,c.segments).length).map(c=>c.h):[],getRulerMetrics:()=>C.elevationRuler(state.camera,W,H),visibleLabelParts:()=>Object.keys(state.labelParts).filter(labelVisible)};
+})();
+
+</script>
+</body>
+</html>
